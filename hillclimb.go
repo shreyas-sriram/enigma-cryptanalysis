@@ -8,24 +8,21 @@ import (
 	"os"
 )
 
-var defaultConfig = struct {
+type Enigma struct {
 	Reflector string
 	Rings     []int
 	Positions []string
 	Rotors    []string
-}{
+}
+
+var defaultConfig = Enigma{
 	Reflector: "C-thin",
 	Rings:     []int{1, 1, 1, 16},
 	Positions: []string{"", "", "B", "Q"},
 	Rotors:    []string{"", "", "IV", "III"},
 }
 
-var bestConfig = struct {
-	Reflector string
-	Rings     []int
-	Positions []string
-	Rotors    []string
-}{
+var bestConfig = Enigma{
 	Reflector: "C-thin",
 	Rings:     []int{1, 1, 1, 16},
 	Positions: []string{"", "", "B", "Q"},
@@ -49,24 +46,42 @@ func main() {
 		os.Exit(0)
 	}
 
-	fmt.Printf("\n [+] Read cipher text :\n %v", string(cipherBytes))
+	cipherText := string(cipherBytes)
 
-	// config := make([]enigma.RotorConfig, len(defaultConfig.Rotors))
-	// for index, rotor := range defaultConfig.Rotors {
-	// 	ring := defaultConfig.Rings[index]
-	// 	start := defaultConfig.Positions[index][0]
-	// 	config[index] = enigma.RotorConfig{ID: rotor, Start: start, Ring: ring}
-	// }
+	fmt.Printf("\n [+] Read cipher text :\n %v", cipherText)
 
-	// plugboards := strings.Split("MS KU FY AG BN PQ HJ DI ER LW", " ")
-	// e := enigma.NewEnigma(config, defaultConfig.Reflector, plugboards)
-	// encoded := e.EncodeString(string(cipherBytes))
+	best := float32(0)
 
 	for _, rotorPositionOne := range rotorsPositionOne {
 		for _, rotorPositionTwo := range rotorsPositionTwo {
-			defaultConfig.Positions[0] = rotorPositionOne
-			defaultConfig.Positions[1] = rotorPositionTwo
+			if rotorPositionOne == rotorPositionTwo {
+				continue
+			}
+
+			defaultConfig.Rotors[0] = rotorPositionOne
+			defaultConfig.Rotors[1] = rotorPositionTwo
+
+			for i := 0; i < 26; i++ { // starting position of rotor at 1st place
+				for j := 0; j < 26; j++ { // starting position of rotor at 2nd place
+					defaultConfig.Positions[0] = string(rune(i + 65))
+					defaultConfig.Positions[1] = string(rune(j + 65))
+
+					printConfig(defaultConfig)
+
+					ioc := getScore(cipherText)
+
+					fmt.Printf("\n Received IOC score: %v", ioc)
+					fmt.Printf("\n\n ----------------------")
+
+					if ioc > best {
+						best = ioc
+						copyStruct(&bestConfig, &defaultConfig)
+					}
+				}
+			}
 		}
 	}
 
+	fmt.Printf("\n\n\n Best IOC score: %v", best)
+	printConfig(bestConfig)
 }

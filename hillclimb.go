@@ -39,10 +39,8 @@ const (
 )
 
 var (
-	// rotorsPositionOne = []string{"Beta", "Gamma", "I", "II", "V", "VI"}
-	// rotorsPositionTwo = []string{"I", "II", "V", "VI"}
-	rotorsPositionOne = []string{"Gamma"}
-	rotorsPositionTwo = []string{"VI"}
+	rotorsPositionOne = []string{"Beta", "Gamma", "I", "II", "V", "VI"}
+	rotorsPositionTwo = []string{"I", "II", "V", "VI"}
 )
 
 func main() {
@@ -97,8 +95,10 @@ func main() {
 	}
 
 	// fmt.Printf("\n\n\n Best IOC score: %v", bestTrigramScore)
-	printConfig(bestConfig)
 
-	plainText := runEnigma(cipherText, bestConfig)
-	fmt.Println(plainText)
+	fmt.Printf("\n\n [+] Best configuration from analysis:")
+	printExpected(bestConfig)
+
+	// plainText := runEnigma(cipherText, bestConfig)
+	// fmt.Println(plainText)
 }

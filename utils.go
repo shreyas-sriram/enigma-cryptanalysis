@@ -87,8 +87,10 @@ func getBestPlugboard(cipherText string) string {
 				revertedPlugboard := swap(rune(defaultPlugboard[j]), rune(bestPlugboard[j]), bestPlugboard)
 				// fmt.Printf("\nSwapped plugboard: %v", revertedPlugboard)
 
-				revertedPlugboard = swap(rune(defaultPlugboard[i]), rune(bestPlugboard[i]), revertedPlugboard)
-				// fmt.Printf("\nSwapped plugboard: %v", revertedPlugboard)
+				if defaultPlugboard[i] != bestPlugboard[i] {
+					revertedPlugboard = swap(rune(defaultPlugboard[i]), rune(bestPlugboard[i]), revertedPlugboard)
+					// fmt.Printf("\nSwapped plugboard: %v", revertedPlugboard)
+				}
 
 				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(bestPlugboard[i]), revertedPlugboard))
 				// fmt.Printf("\nPlugboard: %v", plugboards)
@@ -249,4 +251,19 @@ func printConfig(config enigma) {
 	fmt.Printf("\n\t\t%v", formatPlugboard(config.plugboard))
 
 	fmt.Printf("\n\n\n")
+}
+
+// printExpected prints the configuration of the Enigma in
+// the format required by the assignment
+func printExpected(config enigma) {
+	fmt.Printf("\n\t")
+	for _, rotor := range config.rotors {
+		fmt.Printf("%v ", rotor)
+	}
+
+	fmt.Printf("\n\t")
+	for _, position := range config.positions {
+		fmt.Printf("%v ", position)
+	}
+	fmt.Printf("\n\t%v", formatPlugboard(config.plugboard))
 }

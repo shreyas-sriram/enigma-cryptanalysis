@@ -5,6 +5,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"os"
 )
 
@@ -29,8 +30,16 @@ var bestConfig = Enigma{
 	Rotors:    []string{"", "", "IV", "III"},
 }
 
-var rotorsPositionOne = []string{"Beta", "Gamma", "I", "II", "V", "VI"}
-var rotorsPositionTwo = []string{"I", "II", "V", "VI"}
+const (
+	TRIGRAMS_FILENAME = "english_trigrams.txt"
+)
+
+var (
+	// rotorsPositionOne = []string{"Beta", "Gamma", "I", "II", "V", "VI"}
+	// rotorsPositionTwo = []string{"I", "II", "V", "VI"}
+	rotorsPositionOne = []string{"Gamma"}
+	rotorsPositionTwo = []string{"VI"}
+)
 
 func main() {
 	fmt.Printf("\n --- Enigma cryptanalysis --- \n")
@@ -50,10 +59,12 @@ func main() {
 
 	fmt.Printf("\n [+] Read cipher text :\n %v", cipherText)
 
-	best := float32(0)
+	bestTrigramScore := math.Inf(-1)
 
-	for _, rotorPositionOne := range rotorsPositionOne {
-		for _, rotorPositionTwo := range rotorsPositionTwo {
+	initializeTrigrams(TRIGRAMS_FILENAME)
+
+	for _, rotorPositionOne := range rotorsPositionOne { // rotor at 1st place
+		for _, rotorPositionTwo := range rotorsPositionTwo { // rotor at 2nd place
 			if rotorPositionOne == rotorPositionTwo {
 				continue
 			}
@@ -68,13 +79,17 @@ func main() {
 
 					printConfig(defaultConfig)
 
-					ioc := getScore(cipherText)
+					currentPlugboard := getBestPlugboard(cipherText)
 
-					fmt.Printf("\n Received IOC score: %v", ioc)
+					plainText := runEnigma(cipherText, currentPlugboard)
+
+					currentTrigramScore := calculateTrigram(plainText)
+
+					fmt.Printf("\n Received Trigram score: %v", currentTrigramScore)
 					fmt.Printf("\n\n ----------------------")
 
-					if ioc > best {
-						best = ioc
+					if currentTrigramScore > bestTrigramScore {
+						bestTrigramScore = currentTrigramScore
 						copyStruct(&bestConfig, &defaultConfig)
 					}
 				}
@@ -82,6 +97,9 @@ func main() {
 		}
 	}
 
-	fmt.Printf("\n\n\n Best IOC score: %v", best)
+	// res := formatPlugboard("UGCDEFBHIJKLMNOPQRSTAVWXYZ")
+	// fmt.Printf("\n\n\n Plugboard: %+v", res)
+
+	fmt.Printf("\n\n\n Best IOC score: %v", bestTrigramScore)
 	printConfig(bestConfig)
 }

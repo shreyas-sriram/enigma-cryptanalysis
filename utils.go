@@ -64,11 +64,16 @@ func readFile(filename string) string {
 
 // getBestPlugboard returns the best plugboard configuration based on
 // the `Index of Coincidence`
-func getBestPlugboard(cipherText string) string {
+func getBestPlugboard(cipherText string, base float64) string {
 	bestPlugboard := "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 	plainText := runEnigmaWithPlugboard(cipherText, bestPlugboard)
+
 	bestIOC := calculateIOC(plainText)
+
+	if base > bestIOC {
+		bestIOC = base
+	}
 
 	for i := 0; i < 26; i++ {
 
@@ -127,7 +132,7 @@ func getBestPlugboard(cipherText string) string {
 	return bestPlugboard
 }
 
-// runEnigma configures and run the Enigma with the given settings
+// runEnigma configures and run the enigma with the given settings
 // and returns the output
 func runEnigma(input string, config enigma) string {
 	newConfig := make([]enigma_api.RotorConfig, len(config.rotors))
@@ -232,7 +237,7 @@ func calculateTrigram(text string) float64 {
 	return score
 }
 
-// printConfig pretty prints the configuration of the Enigma
+// printConfig pretty prints the configuration of the enigma
 func printConfig(config enigma) {
 	fmt.Printf("\n\n Enigma configuration:")
 
@@ -253,7 +258,7 @@ func printConfig(config enigma) {
 	fmt.Printf("\n\n\n")
 }
 
-// printExpected prints the configuration of the Enigma in
+// printExpected prints the configuration of the enigma in
 // the format required by the assignment
 func printExpected(config enigma) {
 	fmt.Printf("\n\t")
@@ -265,5 +270,5 @@ func printExpected(config enigma) {
 	for _, position := range config.positions {
 		fmt.Printf("%v ", position)
 	}
-	fmt.Printf("\n\t%v", formatPlugboard(config.plugboard))
+	fmt.Printf("\n\t%v\n", formatPlugboard(config.plugboard))
 }

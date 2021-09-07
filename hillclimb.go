@@ -18,6 +18,8 @@ type enigma struct {
 	plugboard string
 }
 
+// currentConfig stores the enigma configurations through the
+// hillclimb attack iterations
 var currentConfig = enigma{
 	reflector: "C-thin",
 	rings:     []int{1, 1, 1, 16},
@@ -26,6 +28,7 @@ var currentConfig = enigma{
 	plugboard: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
 }
 
+// currentConfig stores the best enigma configuration
 var bestConfig = enigma{
 	reflector: "C-thin",
 	rings:     []int{1, 1, 1, 16},
@@ -39,8 +42,8 @@ const (
 )
 
 var (
-	rotorsPositionOne = []string{"Beta", "Gamma", "I", "II", "V", "VI"}
-	rotorsPositionTwo = []string{"I", "II", "V", "VI"}
+	rotorsPositionOne = [...]string{"Beta", "Gamma", "I", "II", "V", "VI"}
+	rotorsPositionTwo = [...]string{"I", "II", "V", "VI"}
 )
 
 func main() {
@@ -76,7 +79,7 @@ func main() {
 					currentConfig.positions[0] = string(rune(i + 65))
 					currentConfig.positions[1] = string(rune(j + 65))
 
-					currentPlugboard := getBestPlugboard(cipherText)
+					currentPlugboard := getBestPlugboard(cipherText, bestTrigramScore)
 					currentConfig.plugboard = currentPlugboard
 
 					plainText := runEnigma(cipherText, currentConfig)

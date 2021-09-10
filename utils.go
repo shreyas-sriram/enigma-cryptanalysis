@@ -255,14 +255,13 @@ func printConfig(config enigma) {
 // printExpected prints the configuration of the enigma in
 // the format required by the assignment
 func printExpected(config enigma) {
-	fmt.Printf("\n\t")
 	for _, rotor := range config.rotors {
 		fmt.Printf("%v ", rotor)
 	}
 
-	fmt.Printf("\n\t")
+	fmt.Printf("\n")
 	for _, position := range config.positions {
 		fmt.Printf("%v ", position)
 	}
-	fmt.Printf("\n\t%v\n", formatPlugboard(config.plugboard))
+	fmt.Printf("\n%v\n", formatPlugboard(config.plugboard))
 }

@@ -15,12 +15,14 @@ var trigrams = make(map[string]float64)
 
 const (
 	defaultPlugboard string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+	TRIGRAMS_FILENAME string = "english_trigrams.txt"
 )
 
 // initializeTrigrams read and initializes the trigram scores from a file
 // into a map structure
-func initializeTrigrams(filename string) {
-	fileBytes := readFile(filename)
+func initializeTrigrams() {
+	fileBytes := readFile(TRIGRAMS_FILENAME)
 
 	file := string(fileBytes)
 	fileLines := strings.Split(file, "\n")

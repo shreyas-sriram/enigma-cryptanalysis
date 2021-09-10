@@ -32,23 +32,17 @@ var currentConfig = enigma{
 var bestConfig = enigma{
 	reflector: "C-thin",
 	rings:     []int{1, 1, 1, 16},
-	positions: []string{"", "", "B", "Q"},
-	rotors:    []string{"", "", "IV", "III"},
+	positions: []string{"_", "_", "B", "Q"},
+	rotors:    []string{"_", "_", "IV", "III"},
 	plugboard: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
 }
 
-const (
-	TRIGRAMS_FILENAME = "english_trigrams.txt"
-)
-
 var (
-	rotorsPositionOne = [...]string{"Beta", "Gamma", "I", "II", "V", "VI"}
+	rotorsPositionOne = [...]string{"I", "II", "V", "VI", "Beta", "Gamma"}
 	rotorsPositionTwo = [...]string{"I", "II", "V", "VI"}
 )
 
 func main() {
-	fmt.Printf("\n --- enigma cryptanalysis --- \n")
-
 	if len(os.Args) != 2 {
 		fmt.Printf("\n [-] Cipher text file not provided, exiting\n")
 		os.Exit(0)
@@ -56,14 +50,17 @@ func main() {
 
 	cipherText := readFile(os.Args[1])
 
-	fmt.Printf("\n [+] Read cipher text :\n %v", cipherText)
+	// fmt.Printf("\n [+] Read cipher text :\n %v", cipherText)
 
 	bestTrigramScore := math.Inf(-1)
+	totalIOC := float64(0)
+	totalIterations := float64(0)
 
-	initializeTrigrams(TRIGRAMS_FILENAME)
+	initializeTrigrams()
 
 	for _, rotorPositionOne := range rotorsPositionOne { // rotor at 1st place
 		for _, rotorPositionTwo := range rotorsPositionTwo { // rotor at 2nd place
+
 			if rotorPositionOne == rotorPositionTwo {
 				continue
 			}
@@ -71,20 +68,37 @@ func main() {
 			currentConfig.rotors[0] = rotorPositionOne
 			currentConfig.rotors[1] = rotorPositionTwo
 
-			fmt.Printf("\n\n [+] Trying enigma configuration:")
-			printConfig(currentConfig)
+			// fmt.Printf("\n\n [+] Trying enigma configuration:")
+			// printConfig(currentConfig)
 
 			for i := 0; i < 26; i++ { // starting position of rotor at 1st place
 				for j := 0; j < 26; j++ { // starting position of rotor at 2nd place
 					currentConfig.positions[0] = string(rune(i + 65))
 					currentConfig.positions[1] = string(rune(j + 65))
 
+					// Optimization
+					plainText := runEnigmaWithPlugboard(cipherText, defaultPlugboard)
+					currentIOC := calculateIOC(plainText)
+
+					if currentIOC <= totalIOC/totalIterations {
+						continue
+					} else {
+						totalIOC += currentIOC
+						totalIterations++
+					}
+
+					// Hill-climb attack
 					currentPlugboard := getBestPlugboard(cipherText, bestTrigramScore)
 					currentConfig.plugboard = currentPlugboard
 
-					plainText := runEnigma(cipherText, currentConfig)
-
+					plainText = runEnigma(cipherText, currentConfig)
 					currentTrigramScore := calculateTrigram(plainText)
+
+					// fmt.Println(currentIOC)
+					// fmt.Println(currentPlugboard)
+					// fmt.Println(plainText)
+					// fmt.Println(currentTrigramScore)
+					// os.Exit(0)
 
 					// fmt.Printf("\n Received Trigram score: %v", currentTrigramScore)
 

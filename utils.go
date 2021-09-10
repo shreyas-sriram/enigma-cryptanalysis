@@ -70,7 +70,6 @@ func getBestPlugboard(cipherText string, bestIOC float64) string {
 	bestPlugboard := "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 	for i := 0; i < 26; i++ {
-
 		currentIOC := bestIOC
 		currentBestPlugboard := bestPlugboard
 

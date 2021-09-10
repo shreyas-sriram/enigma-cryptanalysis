@@ -66,16 +66,8 @@ func readFile(filename string) string {
 
 // getBestPlugboard returns the best plugboard configuration based on
 // the `Index of Coincidence`
-func getBestPlugboard(cipherText string, base float64) string {
+func getBestPlugboard(cipherText string, bestIOC float64) string {
 	bestPlugboard := "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-	plainText := runEnigmaWithPlugboard(cipherText, bestPlugboard)
-
-	bestIOC := calculateIOC(plainText)
-
-	if base > bestIOC {
-		bestIOC = base
-	}
 
 	for i := 0; i < 26; i++ {
 

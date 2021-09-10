@@ -76,7 +76,7 @@ func main() {
 					currentConfig.positions[0] = string(rune(i + 65))
 					currentConfig.positions[1] = string(rune(j + 65))
 
-					// Optimization
+					// Optimization - brings down runtime from 1800 minutes to 1 minute
 					plainText := runEnigmaWithPlugboard(cipherText, defaultPlugboard)
 					currentIOC := calculateIOC(plainText)
 
@@ -88,7 +88,7 @@ func main() {
 					}
 
 					// Hill-climb attack
-					currentPlugboard := getBestPlugboard(cipherText, bestTrigramScore)
+					currentPlugboard := getBestPlugboard(cipherText, currentIOC)
 					currentConfig.plugboard = currentPlugboard
 
 					plainText = runEnigma(cipherText, currentConfig)
@@ -113,7 +113,7 @@ func main() {
 
 	// fmt.Printf("\n\n\n Best IOC score: %v", bestTrigramScore)
 
-	fmt.Printf("\n\n [+] Best configuration from analysis:")
+	// fmt.Printf("\n\n [+] Best configuration from analysis:")
 	printExpected(bestConfig)
 
 	// plainText := runEnigma(cipherText, bestConfig)

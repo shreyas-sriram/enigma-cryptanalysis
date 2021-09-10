@@ -263,5 +263,9 @@ func printExpected(config enigma) {
 	for _, position := range config.positions {
 		fmt.Printf("%v ", position)
 	}
-	fmt.Printf("\n%v\n", formatPlugboard(config.plugboard))
+
+	fmt.Printf("\n")
+	for _, plugboardItem := range formatPlugboard(config.plugboard) {
+		fmt.Printf("%v ", plugboardItem)
+	}
 }

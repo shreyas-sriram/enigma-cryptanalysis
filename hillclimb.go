@@ -1,5 +1,8 @@
-// enigma "LOTSOFPEOPLEWOR" --rotors "Gamma VI IV III" --rings="1 1 1 16" --position "D A B Q" --plugboard "MS KU FY AG BN PQ HJ DI ER LW" --reflector "C-thin"
-// Program uses `github.com/emedvedev/enigma` as an external API to test enigma configurations
+/*
+ *
+ * Program uses `github.com/emedvedev/enigma` as an external API to simulate enigma configurations
+ *
+ */
 
 package main
 

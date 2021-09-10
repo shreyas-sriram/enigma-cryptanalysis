@@ -1,5 +1,13 @@
 # Enigma Cryptanalysis
 
+## Answer for given [ct.txt](https://github.com/shreyas-sriram/enigma-cryptanalysis/blob/main/ct.txt)
+
+```
+Gamma VI IV III 
+D A B Q 
+AG BN DI ER FY HJ KU LW MS PQ
+```
+
 ## Creating test cases
 
 1. Generate encrypted text using [github.com/emedvedev/enigma](https://github.com/emedvedev/enigma)

@@ -79,7 +79,7 @@ func main() {
 					currentConfig.positions[0] = string(rune(i + 65))
 					currentConfig.positions[1] = string(rune(j + 65))
 
-					// Optimization - brings down runtime from 1800 minutes to 1 minute
+					// Optimization - brings down runtime from 30 minutes to 1 minute or less
 					plainText := runEnigmaWithPlugboard(cipherText, defaultPlugboard)
 					currentIOC := calculateIOC(plainText)
 

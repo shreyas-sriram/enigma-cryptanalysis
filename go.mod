@@ -1,4 +1,4 @@
-module enigma-cryptanalysis
+module hillclimb
 
 go 1.16
 

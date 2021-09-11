@@ -254,18 +254,32 @@ func printConfig(config enigma) {
 // printExpected prints the configuration of the enigma in
 // the format required by the assignment
 func printExpected(config enigma) {
-	for _, rotor := range config.rotors {
-		fmt.Printf("%v ", rotor)
+	for i, rotor := range config.rotors {
+		if i != len(config.rotors)-1 {
+			fmt.Printf("%v ", rotor)
+		} else {
+			fmt.Printf("%v", rotor)
+		}
 	}
 
 	fmt.Printf("\n")
-	for _, position := range config.positions {
-		fmt.Printf("%v ", position)
+	for i, position := range config.positions {
+		if i != len(config.positions)-1 {
+			fmt.Printf("%v ", position)
+		} else {
+			fmt.Printf("%v", position)
+		}
 	}
 
+	formattedPlugboard := formatPlugboard(config.plugboard)
+
 	fmt.Printf("\n")
-	for _, plugboardItem := range formatPlugboard(config.plugboard) {
-		fmt.Printf("%v ", plugboardItem)
+	for i, plugboardItem := range formattedPlugboard {
+		if i != len(formattedPlugboard)-1 {
+			fmt.Printf("%v ", plugboardItem)
+		} else {
+			fmt.Printf("%v", plugboardItem)
+		}
 	}
 
 	fmt.Printf("\n")

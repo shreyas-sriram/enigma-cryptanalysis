@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"strings"
 )
 
 // enigma stores the enigma configuration
@@ -52,6 +53,7 @@ func main() {
 	}
 
 	cipherText := readFile(os.Args[1])
+	cipherText = strings.Split(cipherText, "\n")[0]
 
 	// fmt.Printf("\n [+] Read cipher text :\n %v", cipherText)
 

@@ -90,12 +90,13 @@ func getBestPlugboard(cipherText string, bestIOC float64) string {
 					// fmt.Printf("\nSwapped plugboard: %v", revertedPlugboard)
 				}
 
-				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(bestPlugboard[i]), revertedPlugboard))
+				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(defaultPlugboard[j]), revertedPlugboard))
 				// fmt.Printf("\nPlugboard: %v", plugboards)
 
 				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(bestPlugboard[j]), revertedPlugboard))
 				// fmt.Printf("\nPlugboards: %v", plugboards)
 			}
+			// fmt.Printf("\nPlugboards: %v", plugboards)
 
 			for _, plugboard := range plugboards {
 				plainText := runEnigmaWithPlugboard(cipherText, plugboard)

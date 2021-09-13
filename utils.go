@@ -99,6 +99,7 @@ func getBestPlugboard(cipherText string, bestScore float64, bestPlugboard string
 		for j := i + 1; j < 26; j++ {
 			var plugboards []string
 
+			// fmt.Printf("\nDefault plugboard: %v", defaultPlugboard)
 			// fmt.Printf("\nCurrent plugboard: %v", bestPlugboard)
 
 			if defaultPlugboard[i] != bestPlugboard[i] && defaultPlugboard[j] != bestPlugboard[j] { // both `i` and `j` are already swapped
@@ -107,17 +108,17 @@ func getBestPlugboard(cipherText string, bestScore float64, bestPlugboard string
 				revertedPlugboard = swap(rune(defaultPlugboard[j]), rune(bestPlugboard[j]), revertedPlugboard)
 
 				// make the combinations
-				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(bestPlugboard[i]), revertedPlugboard))
+				// plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(bestPlugboard[i]), revertedPlugboard))
 				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(bestPlugboard[j]), revertedPlugboard))
-				plugboards = append(plugboards, swap(rune(defaultPlugboard[j]), rune(bestPlugboard[i]), revertedPlugboard))
-				plugboards = append(plugboards, swap(rune(defaultPlugboard[j]), rune(bestPlugboard[j]), revertedPlugboard))
+				// plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(defaultPlugboard[j]), revertedPlugboard))
+				// plugboards = append(plugboards, swap(rune(defaultPlugboard[j]), rune(bestPlugboard[i]), revertedPlugboard))
+				// plugboards = append(plugboards, swap(rune(defaultPlugboard[j]), rune(bestPlugboard[j]), revertedPlugboard))
 			} else if defaultPlugboard[i] != bestPlugboard[i] { // only `i` is already swapped
 				// revert the positions
 				revertedPlugboard := swap(rune(defaultPlugboard[i]), rune(bestPlugboard[i]), bestPlugboard)
 
 				// make the combinations
 				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(defaultPlugboard[j]), revertedPlugboard))
-				plugboards = append(plugboards, swap(rune(bestPlugboard[i]), rune(defaultPlugboard[j]), revertedPlugboard))
 			} else if defaultPlugboard[j] != bestPlugboard[j] { // only `j` is already swapped
 				// revert the positions
 				revertedPlugboard := swap(rune(defaultPlugboard[j]), rune(bestPlugboard[j]), bestPlugboard)

@@ -83,8 +83,8 @@ func main() {
 
 					// Optimization - brings down runtime from 30 minutes to 1 minute or less
 					plainText := runEnigmaWithPlugboard(cipherText, defaultPlugboard)
-					currentIOC := calculateIOC(plainText)
 
+					currentIOC := calculateIOC(plainText)
 					if currentIOC <= totalIOC/totalIterations {
 						continue
 					} else {
@@ -93,11 +93,8 @@ func main() {
 					}
 
 					// Hill-climb attack
-					currentPlugboard := getBestPlugboard(cipherText, currentIOC)
+					currentPlugboard, currentTrigramScore := doHillclimb(cipherText, currentIOC)
 					currentConfig.plugboard = currentPlugboard
-
-					plainText = runEnigma(cipherText, currentConfig)
-					currentTrigramScore := calculateTrigram(plainText)
 
 					// fmt.Println(currentIOC)
 					// fmt.Println(currentPlugboard)

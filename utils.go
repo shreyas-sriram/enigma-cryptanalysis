@@ -17,6 +17,9 @@ const (
 	defaultPlugboard string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 	TRIGRAMS_FILENAME string = "english_trigrams.txt"
+
+	IOC     string = "ioc"
+	TRIGRAM string = "trigram"
 )
 
 // initializeTrigrams read and initializes the trigram scores from a file
@@ -64,66 +67,112 @@ func readFile(filename string) string {
 	return string(fileBytes)
 }
 
-// getBestPlugboard returns the best plugboard configuration based on
-// the `Index of Coincidence`
-func getBestPlugboard(cipherText string, bestIOC float64) string {
-	bestPlugboard := "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+// doHillclimb performs hillclimb attack
+func doHillclimb(cipherText string, currentIOC float64) (string, float64) {
+	currentPlugboard, _ := getBestPlugboard(cipherText, currentIOC, defaultPlugboard, IOC)
+	currentConfig.plugboard = currentPlugboard
 
+	plainText := runEnigma(cipherText, currentConfig)
+	currentTrigramScore := calculateTrigram(plainText)
+
+	bestPlugboard, bestTrigramScore := getBestPlugboard(cipherText, currentTrigramScore, currentPlugboard, TRIGRAM)
+
+	return bestPlugboard, bestTrigramScore
+}
+
+// getBestPlugboard returns the best plugboard configuration based on
+// the `Index of Coincidence` or `Trigrams`
+func getBestPlugboard(cipherText string, bestScore float64, bestPlugboard string, scoreType string) (string, float64) {
 	for i := 0; i < 26; i++ {
-		currentIOC := bestIOC
+		currentScore := bestScore
 		currentBestPlugboard := bestPlugboard
+
+		seen := make(map[string]bool)
+
+		// fmt.Printf("\nChecking for: %v", string("ABCDEFGHIJKLMNOPQRSTUVWXYZ"[i]))
 
 		for j := i + 1; j < 26; j++ {
 			var plugboards []string
 
 			// fmt.Printf("\nCurrent plugboard: %v", bestPlugboard)
 
-			if defaultPlugboard[j] == bestPlugboard[j] {
-				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(bestPlugboard[j]), bestPlugboard))
-				// fmt.Printf("\nPlugboard: %v", plugboards)
-			} else {
-				revertedPlugboard := swap(rune(defaultPlugboard[j]), rune(bestPlugboard[j]), bestPlugboard)
-				// fmt.Printf("\nSwapped plugboard: %v", revertedPlugboard)
+			// defaults to no reverts
+			revertedPlugboard := bestPlugboard
 
-				if defaultPlugboard[i] != bestPlugboard[i] {
-					revertedPlugboard = swap(rune(defaultPlugboard[i]), rune(bestPlugboard[i]), revertedPlugboard)
-					// fmt.Printf("\nSwapped plugboard: %v", revertedPlugboard)
-				}
+			// both i and j are already swapped
+			if defaultPlugboard[i] != bestPlugboard[i] && defaultPlugboard[j] != bestPlugboard[j] {
+				// revert the positions
+				revertedPlugboard = swap(rune(defaultPlugboard[i]), rune(bestPlugboard[i]), revertedPlugboard)
+				plugboards = append(plugboards, revertedPlugboard)
 
+				revertedPlugboard = swap(rune(defaultPlugboard[j]), rune(bestPlugboard[j]), revertedPlugboard)
+				plugboards = append(plugboards, revertedPlugboard)
+
+				// make the combinations
 				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(defaultPlugboard[j]), revertedPlugboard))
-				// fmt.Printf("\nPlugboard: %v", plugboards)
-
 				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(bestPlugboard[j]), revertedPlugboard))
-				// fmt.Printf("\nPlugboards: %v", plugboards)
+				plugboards = append(plugboards, swap(rune(bestPlugboard[i]), rune(defaultPlugboard[j]), revertedPlugboard))
+				plugboards = append(plugboards, swap(rune(bestPlugboard[i]), rune(bestPlugboard[j]), revertedPlugboard))
+			} else if defaultPlugboard[i] != bestPlugboard[i] {
+				// revert the positions
+				revertedPlugboard = swap(rune(defaultPlugboard[i]), rune(bestPlugboard[i]), revertedPlugboard)
+				plugboards = append(plugboards, revertedPlugboard)
+
+				// make the combinations
+				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(defaultPlugboard[j]), revertedPlugboard))
+				plugboards = append(plugboards, swap(rune(bestPlugboard[i]), rune(defaultPlugboard[j]), revertedPlugboard))
+			} else if defaultPlugboard[j] != bestPlugboard[j] {
+				// revert the positions
+				revertedPlugboard = swap(rune(defaultPlugboard[j]), rune(bestPlugboard[j]), revertedPlugboard)
+				plugboards = append(plugboards, revertedPlugboard)
+
+				// make the combinations
+				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(defaultPlugboard[j]), revertedPlugboard))
+				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(bestPlugboard[j]), revertedPlugboard))
+			} else {
+				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(defaultPlugboard[j]), revertedPlugboard))
 			}
+
 			// fmt.Printf("\nPlugboards: %v", plugboards)
 
 			for _, plugboard := range plugboards {
+				if _, ok := seen[plugboard]; ok {
+					continue
+				}
+
+				seen[plugboard] = true
+
 				plainText := runEnigmaWithPlugboard(cipherText, plugboard)
-				localIOC := calculateIOC(plainText)
+				localScore := float64(0)
 
-				// fmt.Printf("\nlocalIOC: %v", localIOC)
+				if scoreType == IOC {
+					localScore = calculateIOC(plainText)
+				} else {
+					localScore = calculateTrigram(plainText)
+				}
 
-				if localIOC > currentIOC {
-					currentIOC = localIOC
+				// fmt.Printf("\nlocalScore: %v", localScore)
+
+				if localScore > currentScore {
+					currentScore = localScore
 					currentBestPlugboard = plugboard
 				}
 			}
 		}
 
-		// fmt.Printf("\ncurrentIOC: %v", currentIOC)
-		// fmt.Printf("\nbestIOC: %v", bestIOC)
+		// fmt.Printf("\ncurrentScore: %v", currentScore)
+		// fmt.Printf("\nbestScore: %v", bestScore)
 
-		if currentIOC > bestIOC {
-			bestIOC = currentIOC
+		if currentScore > bestScore {
+			bestScore = currentScore
 			bestPlugboard = currentBestPlugboard
 		}
 	}
 
-	// fmt.Printf("\nbestIOC: %v", bestIOC)
+	// fmt.Printf("\nbestScore: %v", bestScore)
 	// fmt.Printf("\nbestPlugboard: %v", bestPlugboard)
 
-	return bestPlugboard
+	return bestPlugboard, bestScore
 }
 
 // runEnigma configures and run the enigma with the given settings

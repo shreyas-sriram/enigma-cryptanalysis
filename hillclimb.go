@@ -55,8 +55,6 @@ func main() {
 	cipherText := readFile(os.Args[1])
 	cipherText = strings.Split(cipherText, "\n")[0]
 
-	// fmt.Printf("\n [+] Read cipher text :\n %v", cipherText)
-
 	bestTrigramScore := math.Inf(-1)
 	totalIOC := float64(0)
 	totalIterations := float64(0)
@@ -81,10 +79,9 @@ func main() {
 					currentConfig.positions[0] = string(rune(i + 65))
 					currentConfig.positions[1] = string(rune(j + 65))
 
-					// Optimization - brings down runtime from 30 minutes to 1 minute or less
+					// Optimization - choose candidate using primary IOC score
 					plainText := runEnigmaWithPlugboard(cipherText, defaultPlugboard)
 					currentIOC := calculateIOC(plainText)
-
 					if currentIOC <= totalIOC/totalIterations {
 						continue
 					} else {
@@ -93,18 +90,10 @@ func main() {
 					}
 
 					// Hill-climb attack
-					currentPlugboard := getBestPlugboard(cipherText, currentIOC)
+					currentPlugboard, currentTrigramScore := doHillclimb(cipherText, currentIOC)
 					currentConfig.plugboard = currentPlugboard
 
-					plainText = runEnigma(cipherText, currentConfig)
-					currentTrigramScore := calculateTrigram(plainText)
-
-					// fmt.Println(currentIOC)
-					// fmt.Println(currentPlugboard)
-					// fmt.Println(plainText)
-					// fmt.Println(currentTrigramScore)
-					// os.Exit(0)
-
+					// fmt.Printf("\n Received plugboard: %v", currentPlugboard)
 					// fmt.Printf("\n Received Trigram score: %v", currentTrigramScore)
 
 					if currentTrigramScore > bestTrigramScore {

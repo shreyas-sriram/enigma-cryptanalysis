@@ -17,6 +17,9 @@ const (
 	defaultPlugboard string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 	TRIGRAMS_FILENAME string = "english_trigrams.txt"
+
+	IOC     string = "ioc"
+	TRIGRAM string = "trigram"
 )
 
 // initializeTrigrams read and initializes the trigram scores from a file
@@ -64,66 +67,103 @@ func readFile(filename string) string {
 	return string(fileBytes)
 }
 
+// doHillclimb performs hillclimb attack
+func doHillclimb(cipherText string, baseIOC float64) (string, float64) {
+
+	// Hillclimb based on IOC score
+	currentPlugboard, _ := getBestPlugboard(cipherText, baseIOC, defaultPlugboard, IOC)
+	currentConfig.plugboard = currentPlugboard
+
+	// Get base trigram score
+	plainText := runEnigma(cipherText, currentConfig)
+	currentTrigramScore := calculateTrigram(plainText)
+
+	// Hillclimb based on Trigram score
+	bestPlugboard, bestTrigramScore := getBestPlugboard(cipherText, currentTrigramScore, currentPlugboard, TRIGRAM)
+
+	return bestPlugboard, bestTrigramScore
+}
+
 // getBestPlugboard returns the best plugboard configuration based on
-// the `Index of Coincidence`
-func getBestPlugboard(cipherText string, bestIOC float64) string {
-	bestPlugboard := "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+// the `Index of Coincidence` or `Trigram` score
+func getBestPlugboard(cipherText string, bestScore float64, bestPlugboard string, scoreType string) (string, float64) {
+	seen := make(map[string]bool)
+	seen[bestPlugboard] = true
 
 	for i := 0; i < 26; i++ {
-		currentIOC := bestIOC
+		currentScore := bestScore
 		currentBestPlugboard := bestPlugboard
+
+		// fmt.Printf("\nChecking for: %v", string("ABCDEFGHIJKLMNOPQRSTUVWXYZ"[i]))
 
 		for j := i + 1; j < 26; j++ {
 			var plugboards []string
 
+			// fmt.Printf("\nDefault plugboard: %v", defaultPlugboard)
 			// fmt.Printf("\nCurrent plugboard: %v", bestPlugboard)
 
-			if defaultPlugboard[j] == bestPlugboard[j] {
-				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(bestPlugboard[j]), bestPlugboard))
-				// fmt.Printf("\nPlugboard: %v", plugboards)
-			} else {
-				revertedPlugboard := swap(rune(defaultPlugboard[j]), rune(bestPlugboard[j]), bestPlugboard)
-				// fmt.Printf("\nSwapped plugboard: %v", revertedPlugboard)
+			if defaultPlugboard[i] != bestPlugboard[i] && defaultPlugboard[j] != bestPlugboard[j] { // both `i` and `j` are already swapped
+				// revert the positions
+				revertedPlugboard := swap(rune(defaultPlugboard[i]), rune(bestPlugboard[i]), bestPlugboard)
+				revertedPlugboard = swap(rune(defaultPlugboard[j]), rune(bestPlugboard[j]), revertedPlugboard)
 
-				if defaultPlugboard[i] != bestPlugboard[i] {
-					revertedPlugboard = swap(rune(defaultPlugboard[i]), rune(bestPlugboard[i]), revertedPlugboard)
-					// fmt.Printf("\nSwapped plugboard: %v", revertedPlugboard)
-				}
-
-				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(defaultPlugboard[j]), revertedPlugboard))
-				// fmt.Printf("\nPlugboard: %v", plugboards)
-
+				// make the combinations
+				// plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(bestPlugboard[i]), revertedPlugboard))
 				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(bestPlugboard[j]), revertedPlugboard))
-				// fmt.Printf("\nPlugboards: %v", plugboards)
+				// plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(defaultPlugboard[j]), revertedPlugboard))
+				// plugboards = append(plugboards, swap(rune(defaultPlugboard[j]), rune(bestPlugboard[i]), revertedPlugboard))
+				// plugboards = append(plugboards, swap(rune(defaultPlugboard[j]), rune(bestPlugboard[j]), revertedPlugboard))
+			} else if defaultPlugboard[i] != bestPlugboard[i] { // only `i` is already swapped
+				// revert the positions
+				revertedPlugboard := swap(rune(defaultPlugboard[i]), rune(bestPlugboard[i]), bestPlugboard)
+
+				// make the combinations
+				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(defaultPlugboard[j]), revertedPlugboard))
+			} else if defaultPlugboard[j] != bestPlugboard[j] { // only `j` is already swapped
+				// revert the positions
+				revertedPlugboard := swap(rune(defaultPlugboard[j]), rune(bestPlugboard[j]), bestPlugboard)
+
+				// make the combinations
+				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(defaultPlugboard[j]), revertedPlugboard))
+				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(bestPlugboard[j]), revertedPlugboard))
+			} else { // both `i` and `j` are in their original positions
+				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(defaultPlugboard[j]), bestPlugboard))
 			}
+
 			// fmt.Printf("\nPlugboards: %v", plugboards)
 
 			for _, plugboard := range plugboards {
+
+				// if plugboard combination is already seen, then ignore
+				if _, ok := seen[plugboard]; ok {
+					continue
+				}
+
+				seen[plugboard] = true
+
 				plainText := runEnigmaWithPlugboard(cipherText, plugboard)
-				localIOC := calculateIOC(plainText)
+				localScore := float64(0)
 
-				// fmt.Printf("\nlocalIOC: %v", localIOC)
+				if scoreType == IOC {
+					localScore = calculateIOC(plainText)
+				} else {
+					localScore = calculateTrigram(plainText)
+				}
 
-				if localIOC > currentIOC {
-					currentIOC = localIOC
+				if localScore > currentScore {
+					currentScore = localScore
 					currentBestPlugboard = plugboard
 				}
 			}
 		}
 
-		// fmt.Printf("\ncurrentIOC: %v", currentIOC)
-		// fmt.Printf("\nbestIOC: %v", bestIOC)
-
-		if currentIOC > bestIOC {
-			bestIOC = currentIOC
+		if currentScore > bestScore {
+			bestScore = currentScore
 			bestPlugboard = currentBestPlugboard
 		}
 	}
 
-	// fmt.Printf("\nbestIOC: %v", bestIOC)
-	// fmt.Printf("\nbestPlugboard: %v", bestPlugboard)
-
-	return bestPlugboard
+	return bestPlugboard, bestScore
 }
 
 // runEnigma configures and run the enigma with the given settings
@@ -137,9 +177,6 @@ func runEnigma(input string, config enigma) string {
 	}
 
 	formattedPlugboard := formatPlugboard(config.plugboard)
-	// fmt.Printf("\nRawplugboard: %v", defaultPlugboard)
-	// fmt.Printf("\nRawplugboard: %v", plugboard)
-	// fmt.Printf("\nFormatted plugboard: %v", formattedPlugboard)
 
 	e := enigma_api.NewEnigma(newConfig, config.reflector, formattedPlugboard)
 	output := e.EncodeString(input)
@@ -174,8 +211,6 @@ func formatPlugboard(rawPlugboard string) []string {
 
 // swap swaps two characters in a given string and returns the new string
 func swap(a, b rune, plugboard string) string {
-	// fmt.Printf("\n Swap %v and %v", string(a), string(b))
-
 	for i, letter := range plugboard {
 		if letter == a {
 			plugboard = plugboard[0:i] + string(b) + plugboard[i+1:]

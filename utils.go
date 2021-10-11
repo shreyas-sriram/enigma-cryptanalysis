@@ -94,13 +94,8 @@ func getBestPlugboard(cipherText string, bestScore float64, bestPlugboard string
 		currentScore := bestScore
 		currentBestPlugboard := bestPlugboard
 
-		// fmt.Printf("\nChecking for: %v", string("ABCDEFGHIJKLMNOPQRSTUVWXYZ"[i]))
-
 		for j := i + 1; j < 26; j++ {
 			var plugboards []string
-
-			// fmt.Printf("\nDefault plugboard: %v", defaultPlugboard)
-			// fmt.Printf("\nCurrent plugboard: %v", bestPlugboard)
 
 			if defaultPlugboard[i] != bestPlugboard[i] && defaultPlugboard[j] != bestPlugboard[j] { // both `i` and `j` are already swapped
 				// revert the positions
@@ -108,11 +103,7 @@ func getBestPlugboard(cipherText string, bestScore float64, bestPlugboard string
 				revertedPlugboard = swap(rune(defaultPlugboard[j]), rune(bestPlugboard[j]), revertedPlugboard)
 
 				// make the combinations
-				// plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(bestPlugboard[i]), revertedPlugboard))
 				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(bestPlugboard[j]), revertedPlugboard))
-				// plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(defaultPlugboard[j]), revertedPlugboard))
-				// plugboards = append(plugboards, swap(rune(defaultPlugboard[j]), rune(bestPlugboard[i]), revertedPlugboard))
-				// plugboards = append(plugboards, swap(rune(defaultPlugboard[j]), rune(bestPlugboard[j]), revertedPlugboard))
 			} else if defaultPlugboard[i] != bestPlugboard[i] { // only `i` is already swapped
 				// revert the positions
 				revertedPlugboard := swap(rune(defaultPlugboard[i]), rune(bestPlugboard[i]), bestPlugboard)
@@ -130,10 +121,7 @@ func getBestPlugboard(cipherText string, bestScore float64, bestPlugboard string
 				plugboards = append(plugboards, swap(rune(defaultPlugboard[i]), rune(defaultPlugboard[j]), bestPlugboard))
 			}
 
-			// fmt.Printf("\nPlugboards: %v", plugboards)
-
 			for _, plugboard := range plugboards {
-
 				// if plugboard combination is already seen, then ignore
 				if _, ok := seen[plugboard]; ok {
 					continue

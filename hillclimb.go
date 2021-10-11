@@ -71,9 +71,6 @@ func main() {
 			currentConfig.rotors[0] = rotorPositionOne
 			currentConfig.rotors[1] = rotorPositionTwo
 
-			// fmt.Printf("\n\n [+] Trying enigma configuration:")
-			// printConfig(currentConfig)
-
 			for i := 0; i < 26; i++ { // starting position of rotor at 1st place
 				for j := 0; j < 26; j++ { // starting position of rotor at 2nd place
 					currentConfig.positions[0] = string(rune(i + 65))
@@ -93,9 +90,6 @@ func main() {
 					currentPlugboard, currentTrigramScore := doHillclimb(cipherText, currentIOC)
 					currentConfig.plugboard = currentPlugboard
 
-					// fmt.Printf("\n Received plugboard: %v", currentPlugboard)
-					// fmt.Printf("\n Received Trigram score: %v", currentTrigramScore)
-
 					if currentTrigramScore > bestTrigramScore {
 						bestTrigramScore = currentTrigramScore
 						copyStruct(&bestConfig, &currentConfig)
@@ -105,11 +99,5 @@ func main() {
 		}
 	}
 
-	// fmt.Printf("\n\n\n Best IOC score: %v", bestTrigramScore)
-
-	// fmt.Printf("\n\n [+] Best configuration from analysis:")
 	printExpected(bestConfig)
-
-	// plainText := runEnigma(cipherText, bestConfig)
-	// fmt.Println(plainText)
 }

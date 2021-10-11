@@ -1,5 +1,17 @@
 # Enigma Cryptanalysis
 
+Implementation of hillclimbing attack on the M4 Enigma Machine based on [Hillclimbing the Enigma Machine](https://cryptocellar.org/bgac/HillClimbEnigma.pdf).
+
+## Initial Setting
+
+| Setting                  | Value                   |
+| ------------------------ | ----------------------- |
+| Rotor setup              | (reflector) ? ? IV III  |
+| Initial start positions  | ? ? B Q                 |
+| Ringstellung             | 1 1 1 16                |
+| Plugboard                | ?                       |
+| Reflector                | C-thin                  |
+
 ## Answer for given [ct.txt](https://github.com/shreyas-sriram/enigma-cryptanalysis/blob/main/ct.txt)
 
 ```
